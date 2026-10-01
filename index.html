@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A Little Message</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #3e4052;
+      --muted: #77798a;
+      --pink: #f3a9bd;
+      --paper: rgba(255, 255, 255, .82);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      padding: 20px;
+      color: var(--ink);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 15% 15%, #fff4d9 0 8%, transparent 28%),
+        radial-gradient(circle at 85% 20%, #f9dce7 0 10%, transparent 30%),
+        linear-gradient(135deg, #e9e8ff, #fff0f3 55%, #fff7e8);
+    }
+
+    .sparkle {
+      position: fixed;
+      color: white;
+      opacity: .75;
+      animation: float 5s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .sparkle:nth-child(1) { top: 12%; left: 12%; font-size: 25px; }
+    .sparkle:nth-child(2) { top: 20%; right: 13%; font-size: 18px; animation-delay: 1s; }
+    .sparkle:nth-child(3) { bottom: 15%; left: 18%; font-size: 20px; animation-delay: 2s; }
+    .sparkle:nth-child(4) { bottom: 18%; right: 12%; font-size: 28px; animation-delay: .5s; }
+
+    .card {
+      width: min(100%, 520px);
+      min-height: 440px;
+      padding: clamp(28px, 8vw, 52px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: var(--paper);
+      border: 1px solid rgba(255,255,255,.9);
+      border-radius: 28px;
+      box-shadow: 0 24px 70px rgba(83, 72, 124, .14);
+      backdrop-filter: blur(12px);
+      animation: arrive .7s ease both;
+    }
+
+    .icon {
+      font-size: 52px;
+      margin-bottom: 16px;
+      animation: bob 3s ease-in-out infinite;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: #9a8dc4;
+      font-size: 12px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 16px;
+      font-size: clamp(26px, 7vw, 36px);
+      line-height: 1.35;
+    }
+
+    .message {
+      max-width: 360px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.8;
+      white-space: pre-line;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    button {
+      min-height: 48px;
+      padding: 12px 22px;
+      border: 0;
+      border-radius: 999px;
+      color: white;
+      background: linear-gradient(135deg, var(--pink), #e98da9);
+      box-shadow: 0 8px 20px rgba(225, 130, 161, .25);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 11px 24px rgba(225, 130, 161, .32);
+    }
+
+    button:active { transform: scale(.97); }
+
+    button.secondary {
+      color: #777292;
+      background: #f0effa;
+      box-shadow: none;
+    }
+
+    .progress {
+      display: flex;
+      gap: 7px;
+      margin-top: 28px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #dedbea;
+      transition: .3s;
+    }
+
+    .dot.active {
+      width: 20px;
+      border-radius: 8px;
+      background: var(--pink);
+    }
+
+    @keyframes arrive {
+      from { opacity: 0; transform: translateY(12px) scale(.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes float {
+      50% { transform: translateY(-12px) rotate(15deg); }
+    }
+
+    @keyframes bob {
+      50% { transform: translateY(-6px); }
+    }
+
+    @media (max-width: 420px) {
+      .card { min-height: 410px; border-radius: 24px; }
+      .message { font-size: 15px; }
+      button { width: 100%; }
+      .actions { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <span class="sparkle">✦</span>
+  <span class="sparkle">✧</span>
+  <span class="sparkle">✦</span>
+  <span class="sparkle">✧</span>
+
+  <main class="card" id="card" aria-live="polite">
+    <div class="icon" id="icon"></div>
+    <p class="eyebrow" id="eyebrow"></p>
+    <h1 id="title"></h1>
+    <p class="message" id="message"></p>
+    <div class="actions" id="actions"></div>
+    <div class="progress" id="progress" aria-label="Page progress"></div>
+  </main>
+
+  <script>
+    const pages = [
+      {
+        icon: "🌷",
+        eyebrow: "A little hello",
+        title: "Sorry Madam Ji",
+        message: "Sorry for the mistakes that I made.\nI made this little page just for you.",
+        buttons: [{ text: "Continue →", next: 1 }]
+      },
+      {
+        icon: "☁️",
+        eyebrow: "A little message",
+        title: "I now I repeated my mistakes",
+        message: "But I want to be a better person for you.",
+        buttons: [
+          { text: "One more message →", next: 2 },
+          { text: "Go back", next: 0, secondary: true }
+        ]
+      },
+      {
+        icon: "🥺",
+        eyebrow: "Please forgive me",
+        title: "Sorry for disappointing you !",
+        message: "Let's start over and make things right.\nI promise to be more careful and considerate.",
+        buttons: [
+          { text: "See the final message →", next: 3 },
+          { text: "Go back", next: 1, secondary: true }
+        ]
+      },
+      {
+        icon: "🐱",
+        eyebrow: "The end",
+        title: "Thank you for reading",
+        message: "Please forgive me and let's move forward together.\nI appreciate your understanding and patience.",
+        buttons: [
+          { text: "Start again ↺", next: 0 },
+          { text: "Meet the cat 🐾", next: 4, secondary: true }
+        ]
+      },
+      {
+        icon: "😺",
+        eyebrow: "Bonus",
+        title: "The cat says sorry too!",
+        message: "Meow!\n Please forgive my human for their mistakes.\nWe both want to make things right.",
+        buttons: [
+          { text: "Back to the beginning ↺", next: 0 },
+          { text: "Pet the cat again", next: 5, secondary: true }
+        ]
+      },
+      {
+        icon: "🐾",
+        eyebrow: "A cat asking for forgiveness",
+        title: "Purr, purr, purr…",
+        message: "The cat looks very disappointed for his human mistake.\nHope you will forgive both of us and give us another chance.",
+        buttons: [
+          { text: "Back to the beginning ↺", next: 0 },
+          { text: "Pet the cat again 🐱", next: 4, secondary: true }
+        ]
+      }
+    ];
+
+    const card = document.getElementById("card");
+    const icon = document.getElementById("icon");
+    const eyebrow = document.getElementById("eyebrow");
+    const title = document.getElementById("title");
+    const message = document.getElementById("message");
+    const actions = document.getElementById("actions");
+    const progress = document.getElementById("progress");
+
+    function showPage(index) {
+      const page = pages[index];
+
+      card.style.animation = "none";
+      void card.offsetWidth;
+      card.style.animation = "arrive .45s ease both";
+
+      icon.textContent = page.icon;
+      eyebrow.textContent = page.eyebrow;
+      title.textContent = page.title;
+      message.textContent = page.message;
+      actions.replaceChildren();
+      progress.replaceChildren();
+
+      pages.slice(0, 4).forEach((_, i) => {
+        const dot = document.createElement("span");
+        dot.className = "dot" + (i === Math.min(index, 3) ? " active" : "");
+        progress.appendChild(dot);
+      });
+
+      page.buttons.forEach(buttonInfo => {
+        const button = document.createElement("button");
+        button.textContent = buttonInfo.text;
+
+        if (buttonInfo.secondary) {
+          button.classList.add("secondary");
+        }
+
+        button.addEventListener("click", () => showPage(buttonInfo.next));
+        actions.appendChild(button);
+      });
+    }
+
+    showPage(0);
+  </script>
+</body>
+</html>
